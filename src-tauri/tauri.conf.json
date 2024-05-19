@@ -62,6 +62,15 @@
         "resizable": true,
         "title": "desktop",
         "width": 800
+      },
+      {
+        "label": "overlay",
+        "url": "http://localhost:3000/overlay",
+        "fullscreen": false,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "transparent": true,
+        "visible": false
       }
     ]
   }
