@@ -1,17 +1,17 @@
-// app/overlay/page.tsx
-
 "use client";
 
 export default function Page() {
   return (
-    <main className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded shadow-lg w-1/3">
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full p-2 border border-gray-300 rounded"
-        />
+    <body
+      className="flex justify-center items-center"
+      style={{ backgroundColor: "transparent" }}
+    >
+      <div
+        className="h-full w-full"
+        style={{ backgroundColor: "transparent" }}
+      >
+        <h1>Hello World</h1>
       </div>
-    </main>
+    </body>
   );
 }

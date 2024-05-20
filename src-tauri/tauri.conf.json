@@ -11,6 +11,7 @@
     "version": "0.1.0"
   },
   "tauri": {
+    "macOSPrivateApi": true,
     "allowlist": {
       "globalShortcut": {
         "all": true
@@ -65,6 +66,9 @@
       },
       {
         "label": "overlay",
+        "center": true,
+        "height": 120,
+        "width": 720,
         "url": "http://localhost:3000/overlay",
         "fullscreen": false,
         "decorations": false,
