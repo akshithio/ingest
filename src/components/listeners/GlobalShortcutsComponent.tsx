@@ -8,7 +8,7 @@ import {
   unregisterAll,
 } from "@tauri-apps/api/globalShortcut";
 
-const GlobalShortcutsComponent = () => {
+const GlobalShortcutRegistration = () => {
   useEffect(() => {
     const registerShortcuts = async () => {
       await unregisterAll(); // Unregister all shortcuts first
@@ -19,12 +19,6 @@ const GlobalShortcutsComponent = () => {
           invoke("toggle_search_bar"); // Tauri command to toggle the overlay
         }
       );
-
-      // Register the Escape key as a global shortcut
-      await register("Escape", () => {
-        console.log("Escape key triggered");
-        invoke("hide_search_bar"); // Tauri command to hide the overlay
-      });
     };
 
     registerShortcuts();
@@ -39,4 +33,4 @@ const GlobalShortcutsComponent = () => {
   return null;
 };
 
-export default GlobalShortcutsComponent;
+export default GlobalShortcutRegistration;

@@ -1,4 +1,4 @@
-import GlobalShortcutsComponent from "ingest/components/GlobalShortcutsComponent";
+import GlobalShortcutsComponent from "ingest/components/listeners/GlobalShortcutsComponent";
 
 export default function Home() {
   return (
