@@ -20,10 +20,13 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="bg-black flex justify-center items-center h-screen">
+    <main className="bg-black flex flex-col justify-center items-center h-screen">
       <h1 className="text-white">
-        Press CommandOrControl+Shift+C or Ctrl+Alt+F12 to toggle the search bar.
+        Choose file location for where I need to store these things
       </h1>
+      <button className="mt-[12px] border-white border-solid border-[1px] px-[12px] py-[1px]">
+        Hello
+      </button>
     </main>
   );
 }
