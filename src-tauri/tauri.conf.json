@@ -74,6 +74,7 @@
         "decorations": false,
         "alwaysOnTop": true,
         "transparent": true,
+        "resizable": false,
         "visible": false
       }
     ]
