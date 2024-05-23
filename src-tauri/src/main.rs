@@ -1,51 +1,57 @@
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
-
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tauri::{GlobalShortcutManager, Manager, Window};
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let app_handle = Arc::new(app.handle());
-            let main_window = app.get_window("main").unwrap();
+            let overlay = app.get_window("overlay").unwrap();
 
-            // Register the Escape key
-            println!("Registering Escape key");
-            let mut shortcut_manager = app.global_shortcut_manager();
+            // Arc<Mutex<bool>> to track the visibility state
+            let overlay_visible = Arc::new(Mutex::new(false));
+
+            // Register global shortcuts
             let app_handle_clone = Arc::clone(&app_handle);
-            match shortcut_manager.register("Escape", move || {
-                println!("Escape key pressed"); // Debugging log
-                app_handle_clone.emit_all("escape-pressed", ()).unwrap();
-            }) {
-                Ok(_) => println!("Escape key registered successfully"), // Debugging log
-                Err(e) => println!("Failed to register Escape key: {}", e), // Debugging log
+            let overlay_visible_clone = Arc::clone(&overlay_visible);
+            match app
+                .global_shortcut_manager()
+                .register("CommandOrControl+Shift+C", move || {
+                    println!("CommandOrControl+Shift+C pressed");
+                    let mut visible = overlay_visible_clone.lock().unwrap();
+                    if *visible {
+                        app_handle_clone.emit_all("toggle-search-bar", ()).unwrap();
+                    } else {
+                        app_handle_clone.emit_all("show-overlay", ()).unwrap();
+                    }
+                }) {
+                Ok(_) => println!("CommandOrControl+Shift+C registered successfully"),
+                Err(e) => println!("Failed to register CommandOrControl+Shift+C: {}", e),
             };
 
-            // Register other shortcuts
             let app_handle_clone = Arc::clone(&app_handle);
-            match shortcut_manager.register("CommandOrControl+Shift+C", move || {
-                println!("CommandOrControl+Shift+C pressed"); // Debugging log
-                app_handle_clone.emit_all("toggle-search-bar", ()).unwrap();
-            }) {
-                Ok(_) => println!("CommandOrControl+Shift+C registered successfully"), // Debugging log
-                Err(e) => println!("Failed to register CommandOrControl+Shift+C: {}", e), // Debugging log
-            };
-
-            let app_handle_clone = Arc::clone(&app_handle);
-            match shortcut_manager.register("Ctrl+Alt+F12", move || {
-                println!("Ctrl+Alt+F12 pressed"); // Debugging log
-                app_handle_clone.emit_all("toggle-search-bar", ()).unwrap();
-            }) {
-                Ok(_) => println!("Ctrl+Alt+F12 registered successfully"), // Debugging log
-                Err(e) => println!("Failed to register Ctrl+Alt+F12: {}", e), // Debugging log
+            let overlay_visible_clone = Arc::clone(&overlay_visible);
+            match app
+                .global_shortcut_manager()
+                .register("Ctrl+Alt+F12", move || {
+                    println!("Ctrl+Alt+F12 pressed");
+                    let mut visible = overlay_visible_clone.lock().unwrap();
+                    if *visible {
+                        app_handle_clone.emit_all("toggle-search-bar", ()).unwrap();
+                    } else {
+                        app_handle_clone.emit_all("show-overlay", ()).unwrap();
+                    }
+                }) {
+                Ok(_) => println!("Ctrl+Alt+F12 registered successfully"),
+                Err(e) => println!("Failed to register Ctrl+Alt+F12: {}", e),
             };
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![toggle_search_bar, hide_search_bar])
+        .invoke_handler(tauri::generate_handler![
+            toggle_search_bar,
+            hide_search_bar,
+            show_overlay
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -55,8 +61,13 @@ fn toggle_search_bar(window: Window) {
     let overlay = window.get_window("overlay").unwrap();
     if overlay.is_visible().unwrap() {
         overlay.hide().unwrap();
+        let app_handle = window.app_handle();
+        app_handle.emit_all("overlay-hidden", ()).unwrap();
     } else {
         overlay.show().unwrap();
+        overlay.set_focus().unwrap();
+        let app_handle = window.app_handle();
+        app_handle.emit_all("overlay-shown", ()).unwrap();
     }
 }
 
@@ -65,5 +76,16 @@ fn hide_search_bar(window: Window) {
     let overlay = window.get_window("overlay").unwrap();
     if overlay.is_visible().unwrap() {
         overlay.hide().unwrap();
+        let app_handle = window.app_handle();
+        app_handle.emit_all("overlay-hidden", ()).unwrap();
     }
+}
+
+#[tauri::command]
+fn show_overlay(window: Window) {
+    let overlay = window.get_window("overlay").unwrap();
+    overlay.show().unwrap();
+    overlay.set_focus().unwrap();
+    let app_handle = window.app_handle();
+    app_handle.emit_all("overlay-shown", ()).unwrap();
 }
