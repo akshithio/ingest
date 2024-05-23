@@ -18,7 +18,7 @@ export default function Home() {
         // User selected a single directory
         console.log("Selected directory:", selected);
         setSelectedPath(selected);
-        localStorage.setItem("selectedPath", selected);
+        localStorage.setItem("selectedPath", selected); // Store the selected path in local storage
       } else {
         console.log("Selection cancelled.");
       }
