@@ -1,11 +1,12 @@
 use std::sync::{Arc, Mutex};
 use tauri::{GlobalShortcutManager, Manager, Window};
+// this is a test
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
             let app_handle = Arc::new(app.handle());
-            let overlay = app.get_window("overlay").unwrap();
+            // let overlay = app.get_window("overlay").unwrap();
 
             // Arc<Mutex<bool>> to track the visibility state
             let overlay_visible = Arc::new(Mutex::new(false));
@@ -17,7 +18,7 @@ fn main() {
                 .global_shortcut_manager()
                 .register("CommandOrControl+Shift+C", move || {
                     println!("CommandOrControl+Shift+C pressed");
-                    let mut visible = overlay_visible_clone.lock().unwrap();
+                    let visible = overlay_visible_clone.lock().unwrap();
                     if *visible {
                         app_handle_clone.emit_all("toggle-search-bar", ()).unwrap();
                     } else {
@@ -34,7 +35,7 @@ fn main() {
                 .global_shortcut_manager()
                 .register("Ctrl+Alt+F12", move || {
                     println!("Ctrl+Alt+F12 pressed");
-                    let mut visible = overlay_visible_clone.lock().unwrap();
+                    let visible = overlay_visible_clone.lock().unwrap();
                     if *visible {
                         app_handle_clone.emit_all("toggle-search-bar", ()).unwrap();
                     } else {
