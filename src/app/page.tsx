@@ -1,8 +1,10 @@
 "use client";
 
 import { open } from "@tauri-apps/api/dialog";
-import { readDir, readTextFile, BaseDirectory } from "@tauri-apps/api/fs";
+import { readDir, readTextFile } from "@tauri-apps/api/fs";
 import { useState, useCallback, useEffect } from "react";
+
+// fix transparency issue with on focus change issue
 
 export default function Home() {
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export default function Home() {
   }, [isOpening]);
 
   return (
-    <main className="bg-black flex flex-col justify-center items-center h-screen">
+    <main className="bg-black flex flex-col justify-center items-center h-screen hidden:display-n">
       <h1 className="text-white">
         Choose the file location where you want to store these things
       </h1>

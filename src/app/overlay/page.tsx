@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { appWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api";
 import { writeTextFile, writeBinaryFile } from "@tauri-apps/api/fs";
@@ -49,7 +49,20 @@ export default function Overlay() {
       }
     };
 
+    const handleFocusChanged = async ({ payload: focused }) => {
+      console.log("Focus changed, window is focused? " + focused);
+      if (!focused && isOverlayVisible) {
+        invoke("hide_search_bar");
+        setOverlayVisible(false);
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+
+    let unlistenFocusChanged;
+    (async () => {
+      unlistenFocusChanged = await appWindow.onFocusChanged(handleFocusChanged);
+    })();
 
     const handleDrop = async (event: DragEvent) => {
       event.preventDefault();
@@ -69,11 +82,12 @@ export default function Overlay() {
       unlistenEscape.then((f) => f());
       unlistenToggleSearchBar.then((f) => f());
       unlistenShowOverlay.then((f) => f());
+      if (unlistenFocusChanged) unlistenFocusChanged();
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("drop", handleDrop);
       window.removeEventListener("dragover", (event) => event.preventDefault());
     };
-  }, []);
+  }, [isOverlayVisible]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -130,7 +144,10 @@ export default function Overlay() {
   return (
     <body style={{ all: "unset", backgroundColor: "transparent" }}>
       {isOverlayVisible && (
-        <div className="bg-[#EEE] h-screen w-screen rounded-md px-[10px] py-[12px]">
+        <div
+          className="bg-[#EEE] h-screen w-screen rounded-md px-[10px] py-[12px]"
+          style={{ border: "none" }}
+        >
           <form onSubmit={handleSubmit}>
             <input
               type="text"
