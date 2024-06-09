@@ -19,41 +19,61 @@ export default function Overlay() {
     );
     const unlistenToggleSearchBar = appWindow.listen(
       "toggle-search-bar",
-      logEvent("Toggle search bar")
+      () => {
+        logEvent("Toggle search bar")();
+        if (isOverlayVisible) {
+          invoke("hide_search_bar")
+            .then(() => {
+              setOverlayVisible(false);
+            })
+            .catch(console.error);
+        } else {
+          invoke("show_overlay")
+            .then(() => {
+              setOverlayVisible(true);
+              setTimeout(() => {
+                if (inputRef.current) {
+                  inputRef.current.focus();
+                }
+              }, 100); // Slight delay to ensure the window is focused
+            })
+            .catch(console.error);
+        }
+      }
     );
     const unlistenShowOverlay = appWindow.listen("show-overlay", () => {
       logEvent("Show overlay")();
-      invoke("show_overlay");
-      setOverlayVisible(true);
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }, 100); // Slight delay to ensure the window is focused
+      invoke("show_overlay")
+        .then(() => {
+          setOverlayVisible(true);
+          setTimeout(() => {
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
+          }, 100); // Slight delay to ensure the window is focused
+        })
+        .catch(console.error);
     });
-
-    const setFocus = async () => {
-      await appWindow.setFocus();
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    };
-
-    setFocus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         logEvent("Escape key pressed")();
-        invoke("hide_search_bar");
-        setOverlayVisible(false);
+        invoke("hide_search_bar")
+          .then(() => {
+            setOverlayVisible(false);
+          })
+          .catch(console.error);
       }
     };
 
-    const handleFocusChanged = async ({ payload: focused }) => {
+    const handleFocusChanged = ({ payload: focused }: { payload: boolean }) => {
       console.log("Focus changed, window is focused? " + focused);
       if (!focused && isOverlayVisible) {
-        invoke("hide_search_bar");
-        setOverlayVisible(false);
+        invoke("hide_search_bar")
+          .then(() => {
+            setOverlayVisible(false);
+          })
+          .catch(console.error);
       }
     };
 
@@ -101,6 +121,7 @@ export default function Overlay() {
     } else {
       console.error("Input ref is null");
     }
+    invoke("hide_search_bar");
   };
 
   const saveTextToFile = async (text: string) => {
