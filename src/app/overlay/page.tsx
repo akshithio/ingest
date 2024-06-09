@@ -8,8 +8,11 @@ import { writeTextFile, writeBinaryFile } from "@tauri-apps/api/fs";
 export default function Overlay() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
+  const [emptyUpload, setEmptyUpload] = useState(false);
 
   useEffect(() => {
+    setEmptyUpload(false);
+
     const logEvent = (eventName: string) => () =>
       console.log(`${eventName} event received`);
 
@@ -17,6 +20,7 @@ export default function Overlay() {
       "escape-pressed",
       logEvent("Escape key pressed in overlay")
     );
+
     const unlistenToggleSearchBar = appWindow.listen(
       "toggle-search-bar",
       () => {
@@ -79,7 +83,7 @@ export default function Overlay() {
 
     window.addEventListener("keydown", handleKeyDown);
 
-    let unlistenFocusChanged;
+    let unlistenFocusChanged: () => void;
     (async () => {
       unlistenFocusChanged = await appWindow.onFocusChanged(handleFocusChanged);
     })();
@@ -114,14 +118,20 @@ export default function Overlay() {
     console.log("Form submitted");
     if (inputRef.current) {
       const text = inputRef.current.value;
-      console.log("Text to save:", text);
-      await saveTextToFile(text);
-      // Dispatch custom event to notify that a new file has been written
-      window.dispatchEvent(new CustomEvent("file-written"));
+      if (text.trim() === "") {
+        setEmptyUpload(true);
+      } else {
+        setEmptyUpload(false);
+        console.log("Text to save:", text);
+        await saveTextToFile(text);
+        // Dispatch custom event to notify that a new file has been written
+        window.dispatchEvent(new CustomEvent("file-written"));
+        invoke("hide_search_bar");
+      }
     } else {
       console.error("Input ref is null");
     }
-    invoke("hide_search_bar");
+    //invoke("hide_search_bar")
   };
 
   const saveTextToFile = async (text: string) => {
@@ -182,6 +192,12 @@ export default function Overlay() {
             >
               submit
             </button>
+
+            {emptyUpload && (
+              <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
+                your text was empty try again
+              </h1>
+            )}
           </form>
         </div>
       )}

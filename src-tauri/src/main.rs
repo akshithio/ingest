@@ -3,11 +3,8 @@
     windows_subsystem = "windows"
 )]
 
-// i also need this for later.
-
 use std::sync::Arc;
 use tauri::{GlobalShortcutManager, Manager, Window};
-// this is a test
 
 fn main() {
     tauri::Builder::default()
@@ -44,6 +41,7 @@ fn toggle_search_bar(window: Window) -> Result<(), String> {
         .ok_or("Overlay window not found")?;
     if overlay.is_visible().map_err(|e| e.to_string())? {
         overlay.hide().map_err(|e| e.to_string())?;
+        // Do not set focus back to the main window
         window
             .app_handle()
             .emit_all("overlay-hidden", ())

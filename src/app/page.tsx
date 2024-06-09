@@ -3,8 +3,7 @@
 import { open } from "@tauri-apps/api/dialog";
 import { readDir, readTextFile } from "@tauri-apps/api/fs";
 import { useState, useCallback, useEffect } from "react";
-
-// fix transparency issue with on focus change issue
+import { saans } from "ingest/scripts/fonts";
 
 export default function Home() {
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
@@ -89,25 +88,31 @@ export default function Home() {
   }, [isOpening]);
 
   return (
-    <main className="bg-black flex flex-col justify-center items-center h-screen hidden:display-n">
-      <h1 className="text-white">
+    <main className="bg-black w-screen h-screen text-white p-[24px] overflow-x-clip">
+      <h1 className={`${saans.className} text-[24px] font-medium`}>
         Choose the file location where you want to store these things
       </h1>
-      <button
-        onClick={openFilePath}
-        className="mt-[12px] border-white border-solid border-[1px] px-[12px] py-[1px]"
-        disabled={isOpening} // Disable button while opening
-      >
-        Hello
-      </button>
-      {selectedPath && (
-        <p className="text-white mt-4">Selected Path: {selectedPath}</p>
-      )}
+      <div className="flex items-center">
+        <button
+          onClick={openFilePath}
+          className="mt-[12px] border-white border-solid border-[1px] px-[12px] py-[1px]"
+          disabled={isOpening} // Disable button while opening
+        >
+          Pick Location
+        </button>
+        {selectedPath && (
+          <p className="mt-4 ml-[12px]">Selected Path: {selectedPath}</p>
+        )}
+      </div>
+
       {txtContents.length > 0 && (
-        <div className="text-white mt-4">
-          <h2 className="text-lg">Contents of .txt files:</h2>
+        <div className="mt-8">
+          <h2 className="text-lg mb-4">Contents of .txt files:</h2>
           {txtContents.map((content, index) => (
-            <pre key={index} className="whitespace-pre-wrap">
+            <pre
+              key={index}
+              className={`${saans.className} font-light whitespace-pre-wrap`}
+            >
               {content}
             </pre>
           ))}

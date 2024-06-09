@@ -71,6 +71,7 @@
     },
     "windows": [
       {
+        "label": "home",
         "fullscreen": false,
         "height": 600,
         "resizable": true,
