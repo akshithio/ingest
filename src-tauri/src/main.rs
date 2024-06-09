@@ -72,6 +72,7 @@ fn hide_search_bar(window: Window) -> Result<(), String> {
     Ok(())
 }
 
+
 #[tauri::command]
 fn show_overlay(window: Window) -> Result<(), String> {
     let overlay = window

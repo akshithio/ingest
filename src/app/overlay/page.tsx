@@ -20,7 +20,6 @@ export default function Overlay() {
       "escape-pressed",
       logEvent("Escape key pressed in overlay")
     );
-
     const unlistenToggleSearchBar = appWindow.listen(
       "toggle-search-bar",
       () => {
