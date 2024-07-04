@@ -75,6 +75,8 @@ export default function Overlay() {
         invoke("hide_search_bar")
           .then(() => {
             setOverlayVisible(false);
+            // Focus on the document body to prevent the main window from regaining focus
+            document.body.focus();
           })
           .catch(console.error);
       }
@@ -125,7 +127,12 @@ export default function Overlay() {
         await saveTextToFile(text);
         // Dispatch custom event to notify that a new file has been written
         window.dispatchEvent(new CustomEvent("file-written"));
-        invoke("hide_search_bar");
+        invoke("hide_search_bar")
+          .then(() => {
+            setOverlayVisible(false);
+            document.body.focus();
+          })
+          .catch(console.error);
       }
     } else {
       console.error("Input ref is null");
