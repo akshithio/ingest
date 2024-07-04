@@ -5,10 +5,7 @@ interface SVGProps {
   fill?: string;
 }
 
-const VideoIcon: React.FC<SVGProps> = ({
-  dimension = 24,
-  fill = "#f00",
-}) => {
+const VideoIcon: React.FC<SVGProps> = ({ dimension = 24, fill = "#fff" }) => {
   return (
     <svg
       width={dimension}

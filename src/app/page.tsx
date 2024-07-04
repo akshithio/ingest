@@ -11,6 +11,13 @@ import HomeIcon from "ingest/icons/HomeIcon";
 import ExpandIcon from "ingest/icons/ExpandIcon";
 import ProgressIcon from "ingest/icons/ProgressIcon";
 import VideoIcon from "ingest/icons/VideoIcon";
+import PaperIcon from "ingest/icons/PaperIcon";
+import DocumentIcon from "ingest/icons/DocumentIcon";
+import PodcastIcon from "ingest/icons/PodcastIcon";
+import LandscapeIcon from "ingest/icons/LandscapeIcon";
+import ClockIcon from "ingest/icons/ClockIcon";
+
+// TODO: cursor: pointer not working for unknown reasons
 
 export default function Home() {
   const [activeWindow, setActiveWindow] = useState<
@@ -104,25 +111,22 @@ export default function Home() {
           </button>
         </div>
       </div>
-      <div className="w-full h-screen px-[4%] py-[2.5%]">
-        {activeWindow === "home" && (
-          <div>
+      {activeWindow === "home" && (
+        <div className="w-[55%] h-screen px-[4%] py-[2.5%]">
+          <h1 className={`${saans.className} font-medium text-[48px] w-[90%]`}>
+            hey <span className="underline text-[#FF9843]">akshith</span>, you
+            have added{" "}
+            <span className="underline text-[#40A2E3]">
+              32 new items this week
+            </span>
+          </h1>
+          <div className="flex mt-[4.5%] items-center">
             <h1
-              className={`${saans.className} font-medium text-[48px] w-[50%]`}
+              className={`${saans.className} text-[#999] text-[36px] underline`}
             >
-              hey <span className="underline text-[#FF9843]">akshith</span>, you
-              have added{" "}
-              <span className="underline text-[#40A2E3]">
-                32 new items this week
-              </span>
+              recently edited items
             </h1>
-            <div className="flex mt-[5%] items-center">
-              <h1
-                className={`${saans.className} font- text-[#999] text-[36px] underline`}
-              >
-                recently edited items
-              </h1>
-
+            <button>
               <div className="ml-[24px] px-[20px] py-[8px] bg-[#111] rounded-[34px] flex items-center">
                 <ExpandIcon dimension={20} />
                 <h1
@@ -131,34 +135,174 @@ export default function Home() {
                   Open Master View
                 </h1>
               </div>
-            </div>
+            </button>
+          </div>
 
-            <div className="mt-[32px]">
-              <div className="flex items-center w-[45%] relative">
-                <div className="flex items-center">
-                  <ProgressIcon percentage={32} />
-                  <span className="ml-[12px]" />
-                  <VideoIcon />
-                  {/* consider reducing size of video icon? */}
-                  <h1 className="ml-[4px]">
-                    Svelte Origins: A JavaSript Documentary
+          <div className="mt-[32px]">
+            <div className="flex items-center w-full relative my-[16px]">
+              <div className="flex items-center">
+                <ProgressIcon percentage={32} dimension={20} />
+                <span className="ml-[12px]" />
+                <VideoIcon fill="#f00" />
+                {/* consider reducing size of video icon? */}
+                <h1 className="ml-[4px]">
+                  Svelte Origins: A JavaSript Documentary
+                </h1>
+              </div>
+              <div className="flex items-center absolute right-0 text-[#999]">
+                <button className="">
+                  <h1 className="border-b-[2px] border-dotted border-[#999] no-underline">
+                    set aside for later
                   </h1>
-                </div>
-                <div className="flex items-center absolute right-0 text-[#999]">
-                  <button>
-                    <h1 className="underline">set aside for later</h1>
-                    {/* TODO: add dotted underline */}
-                  </button>
+                </button>
 
-                  <h1 className="mx-[12px] text-[12px]">•</h1>
+                <h1 className="mx-[12px] text-[12px]">•</h1>
 
-                  <h1 className="">added 12 hours ago</h1>
-                </div>
+                <h1 className="">added 12 hours ago</h1>
+              </div>
+            </div>
+            <div className="flex items-center w-full relative my-[16px]">
+              <div className="flex items-center">
+                <ProgressIcon percentage={32} dimension={20} />
+                <span className="ml-[12px]" />
+                <PaperIcon />
+                {/* consider reducing size of video icon? */}
+                <h1 className="ml-[4px]">
+                  Understanding the Levenshtein Distance Equation for Beginners
+                </h1>
+                {/* 60 characters limit, if a word ends in between 60 - 65 allow but don't allow a new word to start? */}
+              </div>
+              <div className="flex items-center absolute right-0 text-[#999]">
+                <button className="">
+                  <h1 className="border-b-[2px] border-dotted border-[#999] no-underline">
+                    set aside for later
+                  </h1>
+                </button>
+
+                <h1 className="mx-[12px] text-[12px]">•</h1>
+
+                <h1 className="">added 12 hours ago</h1>
+              </div>
+            </div>
+            <div className="flex items-center w-full relative my-[16px]">
+              <div className="flex items-center">
+                <ProgressIcon percentage={32} dimension={20} />
+                <span className="ml-[12px]" />
+                <DocumentIcon />
+                {/* consider reducing size of video icon? */}
+                <h1 className="ml-[4px]">On the Measure of Intelligence</h1>
+              </div>
+              <div className="flex items-center absolute right-0 text-[#999]">
+                <button className="">
+                  <h1 className="border-b-[2px] border-dotted border-[#999] no-underline">
+                    set aside for later
+                  </h1>
+                </button>
+
+                <h1 className="mx-[12px] text-[12px]">•</h1>
+
+                <h1 className="">added 12 hours ago</h1>
+              </div>
+            </div>
+            <div className="flex items-center w-full relative my-[16px]">
+              <div className="flex items-center">
+                <ProgressIcon percentage={32} dimension={20} />
+                <span className="ml-[12px]" />
+                <PodcastIcon fill="#1DB954" />
+                {/* consider reducing size of video icon? */}
+                <h1 className="ml-[4px]">The Yips and CNN</h1>
+              </div>
+              <div className="flex items-center absolute right-0 text-[#999]">
+                <button className="">
+                  <h1 className="border-b-[2px] border-dotted border-[#999] no-underline">
+                    set aside for later
+                  </h1>
+                </button>
+
+                <h1 className="mx-[12px] text-[12px]">•</h1>
+
+                <h1 className="">added 12 hours ago</h1>
+              </div>
+            </div>
+            <div className="flex items-center w-full relative my-[16px]">
+              <div className="flex items-center">
+                <ProgressIcon percentage={32} dimension={20} />
+                <span className="ml-[12px]" />
+                <VideoIcon />
+                {/* consider reducing size of video icon? */}
+                <h1 className="ml-[4px]">
+                  Svelte Origins: A JavaSript Documentary
+                </h1>
+              </div>
+              <div className="flex items-center absolute right-0 text-[#999]">
+                <button className="">
+                  <h1 className="border-b-[2px] border-dotted border-[#999] no-underline">
+                    set aside for later
+                  </h1>
+                </button>
+
+                <h1 className="mx-[12px] text-[12px]">•</h1>
+
+                <h1 className="">added 12 hours ago</h1>
+              </div>
+            </div>
+            <div className="flex items-center w-full relative my-[16px]">
+              <div className="flex items-center">
+                <ProgressIcon percentage={32} dimension={20} />
+                <span className="ml-[12px]" />
+                <PaperIcon />
+                {/* consider reducing size of video icon? */}
+                <h1 className="ml-[4px]">
+                  Understanding the Levenshtein Distance Equation for Beginners
+                </h1>
+              </div>
+              <div className="flex items-center absolute right-0 text-[#999]">
+                <button className="">
+                  <h1 className="border-b-[2px] border-dotted border-[#999] no-underline">
+                    set aside for later
+                  </h1>
+                </button>
+
+                <h1 className="mx-[12px] text-[12px]">•</h1>
+
+                <h1 className="">added 12 hours ago</h1>
               </div>
             </div>
           </div>
-        )}
-      </div>
+          <div className="flex mt-[4.5%] items-center">
+            <h1
+              className={`${saans.className} text-[#999] text-[36px] underline`}
+            >
+              usage statistics
+            </h1>
+
+            <button>
+              <div className="ml-[24px] px-[20px] py-[8px] bg-[#111] rounded-[34px] flex items-center">
+                <LandscapeIcon />
+                <h1
+                  className={`${saans.className} text-[16px] text-[#eee] ml-[12px]`}
+                >
+                  Change View
+                </h1>
+              </div>
+            </button>
+
+            <button>
+              <div className="ml-[16px] px-[20px] py-[8px] bg-[#111] rounded-[34px] flex items-center">
+                <ClockIcon />
+                <h1
+                  className={`${saans.className} text-[16px] text-[#eee] ml-[12px]`}
+                >
+                  Change Timeline
+                </h1>
+              </div>
+            </button>
+          </div>
+          <div className="w-full bg-slate-50 flex justify-center">
+            <h1>hello </h1>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -34,6 +34,8 @@ fn main() {
         .expect("error while running tauri application");
 }
 
+// hello
+
 #[tauri::command]
 fn toggle_search_bar(window: Window) -> Result<(), String> {
     let overlay = window
