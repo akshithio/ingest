@@ -18,6 +18,8 @@ import DocumentIcon from "ingest/icons/DocumentIcon";
 import PodcastIcon from "ingest/icons/PodcastIcon";
 import LandscapeIcon from "ingest/icons/LandscapeIcon";
 import ClockIcon from "ingest/icons/ClockIcon";
+import SettingsIcon from "ingest/icons/SettingsIcon";
+import TerminalIcon from "ingest/icons/TerminalIcon";
 
 // TODO: cursor: pointer not working for unknown reasons
 
@@ -139,9 +141,11 @@ export default function Home() {
                   onClick={openFilePath}
                   className="text-black text-[12px] mt-[8px]"
                 >
+                  <TerminalIcon />
                   Change Folder Location
                 </button>
                 <button className="text-black text-[12px] mt-[8px]">
+                  <SettingsIcon />
                   Settings
                 </button>
               </div>

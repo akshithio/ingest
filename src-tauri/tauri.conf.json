@@ -84,15 +84,16 @@
       },
       {
         "label": "overlay",
-        "center": true,
-        "height": 120,
-        "width": 720,
         "url": "http://localhost:3000/overlay",
-        "fullscreen": false,
-        "decorations": false,
-        "alwaysOnTop": true,
-        "transparent": true,
+        "width": 720,
+        "height": 120,
+        "center": true,
         "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "fullscreen": false,
         "visible": false
       }
     ]

@@ -206,41 +206,36 @@ export default function Overlay() {
       console.error("No file path selected in local storage.");
     }
   };
-
   return (
-    <body style={{ all: "unset", backgroundColor: "transparent" }}>
-      {isOverlayVisible && (
-        <div
-          className="bg-[#EEE] h-screen w-screen rounded-md px-[10px] py-[12px]"
-          style={{ border: "none" }}
-        >
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              placeholder="Enter a link here..."
-              className="focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#eee] text-black font-inter"
-              ref={inputRef}
-            />
-            <button
-              type="submit"
-              className="ml-[4px] text-black absolute bottom-4 right-4"
-            >
-              submit
-            </button>
+    isOverlayVisible && (
+      <div className="bg-[#111] px-[10px] py-[12px] rounded-lg h-screen w-screen">
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Enter a link here..."
+            className="focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#111] text-white font-inter"
+            ref={inputRef}
+            style={{ border: "none", outline: "none", boxShadow: "none" }}
+          />
+          <button
+            type="submit"
+            className="ml-[4px] text-white absolute bottom-4 right-4"
+          >
+            submit
+          </button>
 
-            {emptyUpload && (
-              <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
-                Your text was empty, try again
-              </h1>
-            )}
-            {invalidLink && (
-              <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
-                Invalid link, try again
-              </h1>
-            )}
-          </form>
-        </div>
-      )}
-    </body>
+          {emptyUpload && (
+            <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
+              Your text was empty, try again
+            </h1>
+          )}
+          {invalidLink && (
+            <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
+              Invalid link, try again
+            </h1>
+          )}
+        </form>
+      </div>
+    )
   );
 }

@@ -8,6 +8,8 @@ use std::path::Path;
 use std::sync::Arc;
 use tauri::{GlobalShortcutManager, Manager, Window};
 
+
+
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
