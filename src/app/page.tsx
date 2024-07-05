@@ -1,8 +1,9 @@
 "use client";
 
 import { saans } from "ingest/scripts/fonts";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { open } from "@tauri-apps/api/dialog";
+import { invoke } from "@tauri-apps/api/tauri";
 import Image from "next/image";
 
 import BinIcon from "ingest/icons/BinIcon";
@@ -29,7 +30,6 @@ export default function Home() {
   >(null);
   const [isUserCard, setIsUserCard] = useState(false);
   const [isFileDialog, setIsFileDialog] = useState(false);
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
   const handleMouseEnter = (icon: "home" | "search" | "folder" | "bin") => {
     setHoveredIcon(icon);
@@ -39,18 +39,10 @@ export default function Home() {
     setHoveredIcon(null);
   };
 
-  useEffect(() => {
-    const storedPath = localStorage.getItem("selectedPath");
-    if (storedPath) {
-      setSelectedPath(storedPath);
-    }
-  }, []);
-
   const openFilePath = useCallback(async () => {
     if (isFileDialog) return;
 
     setIsFileDialog(true);
-    console.log("Opening file dialog");
 
     try {
       const selected = await open({
@@ -59,10 +51,10 @@ export default function Home() {
       });
 
       if (selected && typeof selected === "string") {
-        // User selected a single directory
-        console.log("Selected directory:", selected);
-        setSelectedPath(selected);
         localStorage.setItem("selectedPath", selected); // Store the selected path in local storage
+
+        // Check and create the file in the selected directory
+        await invoke("check_and_create_file", { directory: selected });
       } else {
         console.log("Selection cancelled.");
       }
@@ -142,9 +134,14 @@ export default function Home() {
               className="block"
             />
             {isUserCard && (
-              <div className="absolute bg-gray-100 border-solid border-[1px] border-[#222] rounded-md bottom-[32px] left-[32px] w-[250px] h-[100px] text-left">
-                <button className="text-black">Change Folder Location</button>
-                <button onClick={openFilePath} className="text-black">
+              <div className="absolute bg-gray-100 border-solid border-[1px] border-[#222] rounded-md bottom-[32px] left-[32px] w-[250px] h-[100px] text-left flex flex-col">
+                <button
+                  onClick={openFilePath}
+                  className="text-black text-[12px] mt-[8px]"
+                >
+                  Change Folder Location
+                </button>
+                <button className="text-black text-[12px] mt-[8px]">
                   Settings
                 </button>
               </div>

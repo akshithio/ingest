@@ -3,6 +3,8 @@
     windows_subsystem = "windows"
 )]
 
+use std::fs;
+use std::path::Path;
 use std::sync::Arc;
 use tauri::{GlobalShortcutManager, Manager, Window};
 
@@ -29,6 +31,7 @@ fn main() {
             toggle_search_bar,
             hide_search_bar,
             show_overlay,
+            check_and_create_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -69,6 +72,20 @@ fn hide_search_bar(window: Window) -> Result<(), String> {
     if overlay.is_visible().map_err(|e| e.to_string())? {
         overlay.hide().map_err(|e| e.to_string())?;
     }
+    Ok(())
+}
+
+#[tauri::command]
+fn check_and_create_file(directory: String) -> Result<(), String> {
+    let file_path = Path::new(&directory).join("master-ingest-data.json");
+
+    if !file_path.exists() {
+        fs::write(&file_path, "{}").map_err(|err| err.to_string())?;
+        println!("File created: {:?}", file_path);
+    } else {
+        println!("File already exists: {:?}", file_path);
+    }
+
     Ok(())
 }
 

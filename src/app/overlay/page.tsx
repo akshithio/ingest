@@ -3,15 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { appWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api";
-import { writeTextFile, writeBinaryFile } from "@tauri-apps/api/fs";
+import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import classifier from "ingest/scripts/classifier";
+
+// if the app initializes on another window, the overlay stays on that window & isn't coming on to the other window.
 
 export default function Overlay() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOverlayVisible, setOverlayVisible] = useState(false);
   const [emptyUpload, setEmptyUpload] = useState(false);
+  const [invalidLink, setInvalidLink] = useState(false);
 
   useEffect(() => {
     setEmptyUpload(false);
+    setInvalidLink(false);
 
     const logEvent = (eventName: string) => () =>
       console.log(`${eventName} event received`);
@@ -20,6 +25,7 @@ export default function Overlay() {
       "escape-pressed",
       logEvent("Escape key pressed in overlay")
     );
+
     const unlistenToggleSearchBar = appWindow.listen(
       "toggle-search-bar",
       () => {
@@ -38,12 +44,13 @@ export default function Overlay() {
                 if (inputRef.current) {
                   inputRef.current.focus();
                 }
-              }, 100); // Slight delay to ensure the window is focused
+              }, 100); // does this delay help either?
             })
             .catch(console.error);
         }
       }
     );
+
     const unlistenShowOverlay = appWindow.listen("show-overlay", () => {
       logEvent("Show overlay")();
       invoke("show_overlay")
@@ -53,7 +60,7 @@ export default function Overlay() {
             if (inputRef.current) {
               inputRef.current.focus();
             }
-          }, 100); // Slight delay to ensure the window is focused
+          }, 100); // not sure if this delay helps with the macos / tauri bug?
         })
         .catch(console.error);
     });
@@ -75,7 +82,7 @@ export default function Overlay() {
         invoke("hide_search_bar")
           .then(() => {
             setOverlayVisible(false);
-            // Focus on the document body to prevent the main window from regaining focus
+            // focus on the document body to prevent the main window from regaining focus
             document.body.focus();
           })
           .catch(console.error);
@@ -89,19 +96,21 @@ export default function Overlay() {
       unlistenFocusChanged = await appWindow.onFocusChanged(handleFocusChanged);
     })();
 
-    const handleDrop = async (event: DragEvent) => {
-      event.preventDefault();
-      logEvent("File dropped")();
-      const files = event.dataTransfer?.files;
-      if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-          await saveDroppedFile(files[i]);
-        }
-      }
-    };
+    // code for when we decide on being able to drage & drop files, not atm
 
-    window.addEventListener("drop", handleDrop);
-    window.addEventListener("dragover", (event) => event.preventDefault());
+    // const handleDrop = async (event: DragEvent) => {
+    //   event.preventDefault();
+    //   logEvent("File dropped")();
+    //   const files = event.dataTransfer?.files;
+    //   if (files && files.length > 0) {
+    //     for (let i = 0; i < files.length; i++) {
+    //       await saveDroppedFile(files[i]);
+    //     }
+    //   }
+    // };
+
+    // window.addEventListener("drop", handleDrop);
+    // window.addEventListener("dragover", (event) => event.preventDefault());
 
     return () => {
       unlistenEscape.then((f) => f());
@@ -109,24 +118,34 @@ export default function Overlay() {
       unlistenShowOverlay.then((f) => f());
       if (unlistenFocusChanged) unlistenFocusChanged();
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("drop", handleDrop);
+      // window.removeEventListener("drop", handleDrop); code for drag & drop?
       window.removeEventListener("dragover", (event) => event.preventDefault());
     };
   }, [isOverlayVisible]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log("Form submitted");
+
     if (inputRef.current) {
       const text = inputRef.current.value;
+      const urlPattern = new RegExp(
+        "(https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\\/\\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+      );
+
       if (text.trim() === "") {
         setEmptyUpload(true);
+        setInvalidLink(false);
+      } else if (!urlPattern.test(text)) {
+        setInvalidLink(true);
+        setEmptyUpload(false);
       } else {
         setEmptyUpload(false);
-        console.log("Text to save:", text);
+        setInvalidLink(false);
+
         await saveTextToFile(text);
-        // Dispatch custom event to notify that a new file has been written
+
         window.dispatchEvent(new CustomEvent("file-written"));
+
         invoke("hide_search_bar")
           .then(() => {
             setOverlayVisible(false);
@@ -137,7 +156,36 @@ export default function Overlay() {
     } else {
       console.error("Input ref is null");
     }
-    //invoke("hide_search_bar")
+  };
+
+  const updateJson = async (
+    jsonPath: string,
+    obj: { link: string; timestamp: number }
+  ) => {
+    try {
+      let data = [];
+      try {
+        const fileContent = await readTextFile(jsonPath);
+        data = JSON.parse(fileContent);
+        if (!Array.isArray(data)) {
+          console.log("file content isn't an array?");
+          data = [];
+        }
+      } catch (error) {
+        console.log(
+          "error reading file or content isn't valid json / an array"
+        );
+        data = [];
+      }
+
+      const objRenewed = classifier(obj);
+
+      data.push(objRenewed);
+      await writeTextFile(jsonPath, JSON.stringify(data, null, 2));
+      console.log(`Data added to ${jsonPath}`);
+    } catch (error) {
+      console.error("error updating master-ingest-data.json:", error);
+    }
   };
 
   const saveTextToFile = async (text: string) => {
@@ -145,31 +193,12 @@ export default function Overlay() {
     console.log("Selected path from local storage:", selectedPath);
     if (selectedPath) {
       const utcSeconds = Math.floor(Date.now() / 1000);
-      const filePath = `${selectedPath}/note_${utcSeconds}.txt`;
       try {
-        await writeTextFile(filePath, text);
-        console.log(`File saved at ${filePath}`);
-      } catch (error) {
-        console.error("Error saving file:", error);
-      }
-    } else {
-      console.error("No file path selected in local storage.");
-    }
-  };
-
-  const saveDroppedFile = async (file: File) => {
-    const selectedPath = localStorage.getItem("selectedPath");
-    console.log("Selected path from local storage:", selectedPath);
-    if (selectedPath) {
-      const utcSeconds = Math.floor(Date.now() / 1000);
-      const fileExtension = file.type.split("/")[1] || "bin"; // Default to "bin" if no file type
-      const filePath = `${selectedPath}/img_${utcSeconds}.${fileExtension}`;
-      const arrayBuffer = await file.arrayBuffer();
-      try {
-        await writeBinaryFile(filePath, new Uint8Array(arrayBuffer));
-        console.log(`File saved at ${filePath}`);
-        // Dispatch custom event to notify that a new file has been written
-        window.dispatchEvent(new CustomEvent("file-written"));
+        // Add object to master-ingest-data.json
+        await updateJson(`${selectedPath}/master-ingest-data.json`, {
+          link: text,
+          timestamp: utcSeconds,
+        });
       } catch (error) {
         console.error("Error saving file:", error);
       }
@@ -188,7 +217,7 @@ export default function Overlay() {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              placeholder="Start taking notes here... "
+              placeholder="Enter a link here..."
               className="focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#eee] text-black font-inter"
               ref={inputRef}
             />
@@ -201,7 +230,12 @@ export default function Overlay() {
 
             {emptyUpload && (
               <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
-                your text was empty try again
+                Your text was empty, try again
+              </h1>
+            )}
+            {invalidLink && (
+              <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
+                Invalid link, try again
               </h1>
             )}
           </form>
