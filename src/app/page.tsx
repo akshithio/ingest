@@ -30,7 +30,7 @@ import TerminalIcon from "ingest/icons/TerminalIcon";
 
 // TODO: port over to NSPanel tauri implementation to prevent weird bug with back in focus issue
 // TODO: cursor: pointer not working for unknown reasons
-// TODO: responsiveness across dimensions
+// TODO: responsiveness across dimensions [WIP]
 // TODO: YouTube API connection for CDN images [COMPLETED]
 // TODO: render actual state of data in the folder view dynamically
 // TODO: search capabilites (in overlay?)
@@ -359,7 +359,7 @@ export default function Home() {
             </div>
           </div>
           {/* width needs to be constrained, height isn't an issue? */}
-          <div className="flex-grow flex flex-col items-center py-[2.5%]">
+          <div className="hidden flex-grow xl:flex flex-col items-center py-[2.5%]">
             <div className="my-[2.5%]">
               <h1 className="text-[#999] text-[11px] text-center mb-[8px] ml-[-4px]">
                 because you asked me to remind you about this video today
@@ -388,7 +388,7 @@ export default function Home() {
                   <h1
                     className={`${saans.className} text-white font-medium text-[12px]`}
                   >
-                    OfferZenOrigins - YouTube
+                    `OfferZ`enOrigins - YouTube
                   </h1>
                 </div>
               </div>

@@ -77,16 +77,3 @@ pub mod macos {
         }
     }
 }
-
-use tauri::{Runtime, Window};
-
-pub trait WindowExt {
-    fn set_document_title(&self, url: &str);
-}
-
-impl<R: Runtime> WindowExt for Window<R> {
-    fn set_document_title(&self, title: &str) {
-        let str = format!("document.title = '{:}'", title);
-        self.eval(&str).unwrap();
-    }
-}
