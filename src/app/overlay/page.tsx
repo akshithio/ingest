@@ -5,6 +5,11 @@ import { appWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api";
 import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classifier from "ingest/scripts/classifier";
+import invalidateWindowBorders from "ingest/scripts/invalidateWindowBorders";
+import PodcastIcon from "ingest/icons/PodcastIcon";
+import VideoIcon from "ingest/icons/VideoIcon";
+import PaperIcon from "ingest/icons/PaperIcon";
+import DocumentIcon from "ingest/icons/DocumentIcon";
 
 // if the app initializes on another window, the overlay stays on that window & isn't coming on to the other window.
 
@@ -38,8 +43,9 @@ export default function Overlay() {
             .catch(console.error);
         } else {
           invoke("show_overlay")
-            .then(() => {
+            .then(async () => {
               setOverlayVisible(true);
+              await invalidateWindowBorders();
               setTimeout(() => {
                 if (inputRef.current) {
                   inputRef.current.focus();
@@ -179,8 +185,7 @@ export default function Overlay() {
       }
 
       const objRenewed = classifier(obj);
-
-      data.push(objRenewed);
+      data.push(objRenewed); // needs to be changed to objRenewed later
       await writeTextFile(jsonPath, JSON.stringify(data, null, 2));
       console.log(`Data added to ${jsonPath}`);
     } catch (error) {
@@ -206,36 +211,65 @@ export default function Overlay() {
       console.error("No file path selected in local storage.");
     }
   };
+
   return (
     isOverlayVisible && (
-      <div className="bg-[#111] px-[10px] py-[12px] rounded-lg h-screen w-screen">
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Enter a link here..."
-            className="focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#111] text-white font-inter"
-            ref={inputRef}
-            style={{ border: "none", outline: "none", boxShadow: "none" }}
-          />
-          <button
-            type="submit"
-            className="ml-[4px] text-white absolute bottom-4 right-4"
-          >
-            submit
-          </button>
+      <body style={{ all: "unset", backgroundColor: "transparent" }}>
+        <div className="bg-[#111] h-screen w-screen rounded-md px-[10px] py-[12px]">
+          <form onSubmit={handleSubmit}>
+            <select name="op" id="op">
+              <option value="add" className="text-white">
+                add
+              </option>
+              <option value="edit" className="text-white">
+                edit
+              </option>
+              <option value="delete" className="text-white">
+                delete
+              </option>
 
-          {emptyUpload && (
-            <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
-              Your text was empty, try again
-            </h1>
-          )}
-          {invalidLink && (
-            <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
-              Invalid link, try again
-            </h1>
-          )}
-        </form>
-      </div>
+              <select name="type" id="type">
+                <option value="research-paper" className="text-white">
+                  <DocumentIcon />
+                </option>
+                <option value="article" className="text-white">
+                  <PaperIcon />
+                  {/* rename to article? */}
+                </option>
+                <option value="video" className="text-white">
+                  <VideoIcon />
+                </option>
+                <option value="podcast" className="text-white">
+                  <PodcastIcon />
+                </option>
+              </select>
+            </select>
+            <input
+              type="text"
+              placeholder="Enter a link here..."
+              className="ml-[4px] focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#111] text-white font-inter"
+              ref={inputRef}
+            />
+            <button
+              type="submit"
+              className="ml-[4px] text-white absolute bottom-4 right-4"
+            >
+              submit
+            </button>
+
+            {emptyUpload && (
+              <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
+                Your text was empty, try again
+              </h1>
+            )}
+            {invalidLink && (
+              <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
+                Invalid link, try again
+              </h1>
+            )}
+          </form>
+        </div>
+      </body>
     )
   );
 }

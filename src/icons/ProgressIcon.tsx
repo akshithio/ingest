@@ -3,7 +3,7 @@ import React from "react";
 interface SVGProps {
   dimension?: number;
   percentage?: number;
-  status?: "todo" | "in-progress" | "completed";
+  status?: "todo" | "in-progress" | "done";
 }
 
 const ProgressIcon: React.FC<SVGProps> = ({

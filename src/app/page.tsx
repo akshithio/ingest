@@ -21,7 +21,19 @@ import ClockIcon from "ingest/icons/ClockIcon";
 import SettingsIcon from "ingest/icons/SettingsIcon";
 import TerminalIcon from "ingest/icons/TerminalIcon";
 
+// priority TODOS
+
+// TODO: overlay has weird 1px border [COMPLETED]
+// TODO: add, edit & more capabilities in overlay [WIP]
+// TODO: basics of classifier schema + intelligence [WIP - needs to be triggered onChange instead of onSubmit tho]
+// TODO: refactor overlay/page.tsx for clarity
+
+// TODO: port over to NSPanel tauri implementation to prevent weird bug with back in focus issue
 // TODO: cursor: pointer not working for unknown reasons
+// TODO: responsiveness across dimensions
+// TODO: YouTube API connection for CDN images [COMPLETED]
+// TODO: render actual state of data in the folder view dynamically
+// TODO: search capabilites (in overlay?)
 
 export default function Home() {
   const [activeWindow, setActiveWindow] = useState<
