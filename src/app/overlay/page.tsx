@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import { appWindow } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api";
 import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+
 import classifier from "ingest/scripts/classifier";
 import invalidateWindowBorders from "ingest/scripts/invalidateWindowBorders";
+import { saans } from "ingest/scripts/fonts";
+
 import PodcastIcon from "ingest/icons/PodcastIcon";
 import VideoIcon from "ingest/icons/VideoIcon";
 import PaperIcon from "ingest/icons/PaperIcon";
 import DocumentIcon from "ingest/icons/DocumentIcon";
+import AddIcon from "ingest/icons/AddIcon";
+import ModifyIcon from "ingest/icons/ModifyIcon";
 
 // if the app initializes on another window, the overlay stays on that window & isn't coming on to the other window.
 
@@ -195,6 +201,8 @@ export default function Overlay() {
 
   const saveTextToFile = async (text: string) => {
     const selectedPath = localStorage.getItem("selectedPath");
+    
+    
     console.log("Selected path from local storage:", selectedPath);
     if (selectedPath) {
       const utcSeconds = Math.floor(Date.now() / 1000);
@@ -215,48 +223,29 @@ export default function Overlay() {
   return (
     isOverlayVisible && (
       <body style={{ all: "unset", backgroundColor: "transparent" }}>
-        <div className="bg-[#111] h-screen w-screen rounded-md px-[10px] py-[12px]">
-          <form onSubmit={handleSubmit}>
-            <select name="op" id="op">
-              <option value="add" className="text-white">
-                add
-              </option>
-              <option value="edit" className="text-white">
-                edit
-              </option>
-              <option value="delete" className="text-white">
-                delete
-              </option>
+        <div className="bg-[#111] h-screen w-screen rounded-md px-[10px] py-[12px] flex items-center">
+          <form onSubmit={handleSubmit} className="flex ml-[16px]">
+            <AddIcon isActive dimension={22} />
+            <span
+              className={`${saans.className} text-[16px] font-medium mx-[4px] text-white`}
+            >
+              /
+            </span>
 
-              <select name="type" id="type">
-                <option value="research-paper" className="text-white">
-                  <DocumentIcon />
-                </option>
-                <option value="article" className="text-white">
-                  <PaperIcon />
-                  {/* rename to article? */}
-                </option>
-                <option value="video" className="text-white">
-                  <VideoIcon />
-                </option>
-                <option value="podcast" className="text-white">
-                  <PodcastIcon />
-                </option>
-              </select>
-            </select>
+            <ModifyIcon isActive dimension={22} />
             <input
               type="text"
               placeholder="Enter a link here..."
-              className="ml-[4px] focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#111] text-white font-inter"
+              className={`ml-[16px] focus:outline-none w-[80%] h-[40%] placeholder:text-[16px] bg-[#111] text-white placeholder:${saans.className}`}
               ref={inputRef}
             />
+
             <button
               type="submit"
               className="ml-[4px] text-white absolute bottom-4 right-4"
             >
               submit
             </button>
-
             {emptyUpload && (
               <h1 className="ml-[4px] text-[#f00] absolute bottom-4 left-4 text-[10px]">
                 Your text was empty, try again

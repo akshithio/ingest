@@ -1,7 +1,8 @@
 "use client";
 
 import { saans } from "ingest/scripts/fonts";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { readTextFile } from "@tauri-apps/api/fs";
 import { open } from "@tauri-apps/api/dialog";
 import { invoke } from "@tauri-apps/api/tauri";
 import Image from "next/image";
@@ -35,6 +36,11 @@ import TerminalIcon from "ingest/icons/TerminalIcon";
 // TODO: render actual state of data in the folder view dynamically
 // TODO: search capabilites (in overlay?)
 
+interface FileItem {
+  link: string;
+  timestamp: number;
+}
+
 export default function Home() {
   const [activeWindow, setActiveWindow] = useState<
     "home" | "search" | "folder" | "bin"
@@ -49,6 +55,26 @@ export default function Home() {
     setHoveredIcon(icon);
   };
 
+  const [fileContents, setFileContents] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchFileContents = async () => {
+      const selectedPath = localStorage.getItem("selectedPath");
+      const filePath = `${selectedPath}/master-ingest-data.json`;
+      try {
+        const fileContent = await readTextFile(filePath);
+        let data = JSON.parse(fileContent);
+        console.log("oh cool i have data");
+        console.log(data);
+        setFileContents(data);
+      } catch (error) {
+        console.error("Error: ", error);
+        setFileContents([]);
+      }
+    };
+
+    fetchFileContents();
+  }, []);
   const handleMouseLeave = () => {
     setHoveredIcon(null);
   };
@@ -65,7 +91,7 @@ export default function Home() {
       });
 
       if (selected && typeof selected === "string") {
-        localStorage.setItem("selectedPath", selected); // Store the selected path in local storage
+        localStorage.setItem("selectedPath", selected); // store the selected path in local storage
 
         // Check and create the file in the selected directory
         await invoke("check_and_create_file", { directory: selected });
@@ -75,7 +101,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error opening file path:", error);
     } finally {
-      setIsFileDialog(false); // Reset opening state
+      setIsFileDialog(false); // reset opening state
     }
   }, [isFileDialog]);
 
@@ -148,17 +174,23 @@ export default function Home() {
               className="block"
             />
             {isUserCard && (
-              <div className="absolute bg-gray-100 border-solid border-[1px] border-[#222] rounded-md bottom-[32px] left-[32px] w-[250px] h-[100px] text-left flex flex-col">
+              <div className="absolute bg-gray-100 border-solid border-[1px] border-[#222] rounded-md bottom-[32px] left-[32px] w-[250px] h-[100px] text-left flex flex-col justify-center">
                 <button
                   onClick={openFilePath}
-                  className="text-black text-[12px] mt-[8px]"
+                  className="text-black text-[12px] mt-[8px] flex items-center justify-center"
                 >
-                  <TerminalIcon />
-                  Change Folder Location
+                  <TerminalIcon fill="#000" />
+                  <p
+                    className={`${saans.className} text-[12px] text-black font-medium ml-[10px]`}
+                  >
+                    Change Folder Location
+                  </p>
                 </button>
-                <button className="text-black text-[12px] mt-[8px]">
-                  <SettingsIcon />
-                  Settings
+                <button
+                  className={`${saans.className} text-[12px] text-black font-medium mt-[8px]`}
+                >
+                  <SettingsIcon fill="#000" />
+                  <p>Settings</p>
                 </button>
               </div>
             )}
@@ -356,6 +388,32 @@ export default function Home() {
                   </h1>
                 </div>
               </button>
+            </div>
+
+            <div className="mt-[16px]">
+              <h1>test space to see if we can render the existing files</h1>
+              {fileContents.length > 0 ? (
+                <ul>
+                  {fileContents.map((item, index) => (
+                    <li key={index} className="mb-[12px]">
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#40A2E3] hover:underline"
+                      >
+                        {item.link}
+                      </a>
+                      <span className="ml-[12px] text-[#999]">
+                        (Timestamp:{" "}
+                        {new Date(item.timestamp * 1000).toLocaleString()})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-[#999]">No file contents to display.</p>
+              )}
             </div>
           </div>
           {/* width needs to be constrained, height isn't an issue? */}
